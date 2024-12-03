@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Time Calculator Extension",
+  "name": "Keka Time Calculator Extension",
   "version": "1.0",
   "description": "Calculate remaining time from the page",
   "permissions": ["scripting", "activeTab"],
   "action": {
     "default_popup": "popup.html"
   },
-  "host_permissions": ["http://*/*", "https://*/*"]
+  "host_permissions": ["https://yudiz.keka.com/*"]
 }

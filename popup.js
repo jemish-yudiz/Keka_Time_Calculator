@@ -86,7 +86,9 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 const displayElement = document.createElement("div");
                 displayElement.textContent = `Time: ${timeDifference}`;
                 displayElement.style.padding = "10px";
-                displayElement.style.backgroundColor = "#263042";
+                const themeMode = localStorage.getItem("ThemeMode");
+                displayElement.style.backgroundColor =
+                  themeMode === "light" ? "#f5f5f5" : "#263042";
                 currentTimeElementParent.insertBefore(
                   displayElement,
                   currentTimeElement.nextSibling
