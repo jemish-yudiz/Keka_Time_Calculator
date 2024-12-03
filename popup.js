@@ -57,7 +57,9 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       },
       (results) => {
         if (chrome.runtime.lastError) {
-          console.error("Error executing script:", chrome.runtime.lastError);
+          // console.error("Error executing script:", chrome.runtime.lastError);
+          const messageElement = document.querySelector(".message");
+          messageElement.textContent = "Please First Load the PunchIn Time";
           return;
         }
 
@@ -94,7 +96,9 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             args: [timeDifference],
           });
         } else {
-          console.error("Could not extract times");
+          // console.error("Could not extract times");
+          const messageElement = document.querySelector(".message");
+          messageElement.textContent = "Please First Load the PunchIn Time";
         }
       }
     );
