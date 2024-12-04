@@ -1,4 +1,3 @@
-// Function to parse time strings
 function parseTime(timeString) {
   if (!timeString) return null;
 
@@ -24,7 +23,6 @@ function parseTime(timeString) {
   return { lastHours: hours, lastMinutes: minutes };
 }
 
-// Function to calculate time difference
 function calculateTimeDifference(currentTime, lastTime) {
   const currentTimeParsed = parseTime(currentTime);
   const lastTimeParsed = parseTime(lastTime);
@@ -45,7 +43,6 @@ function calculateTimeDifference(currentTime, lastTime) {
   return `${remainingHours}:${remainingMin}`;
 }
 
-// Execute script to calculate and display time
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   const tab = tabs[0];
 
@@ -55,20 +52,19 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         target: { tabId: tab.id },
         func: extractTimes,
       },
-      (results) => {
-        if (chrome.runtime.lastError) {
-          // console.error("Error executing script:", chrome.runtime.lastError);
-          const messageElement = document.querySelector(".message");
-          messageElement.textContent = "Please First Load the PunchIn Time";
-          return;
-        }
+      async (results) => {
+        // if (chrome.runtime.lastError) {
+        //   const messageElement = document.querySelector(".message");
+        //   messageElement.textContent = "Please First Load the PunchIn Time";
+        //   return;
+        // }
 
-        const { currentTime, lastTime } = results[0].result;
+        const result = await results[0].result;
+        const { currentTime, lastTime } = result;
 
         if (currentTime && lastTime) {
           const timeDifference = calculateTimeDifference(currentTime, lastTime);
 
-          // Display the calculated time difference
           chrome.scripting.executeScript({
             target: { tabId: tab.id },
             func: (timeDifference) => {
@@ -83,31 +79,35 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 currentTimeElementParent.style.textAlign = "center";
                 currentTimeElementParent.style.gap = "20px";
 
-                const displayElement = document.createElement("div");
-                displayElement.textContent = `Time: ${timeDifference}`;
-                displayElement.style.padding = "10px";
-                const themeMode = localStorage.getItem("ThemeMode");
-                displayElement.style.backgroundColor =
-                  themeMode === "light" ? "#f5f5f5" : "#263042";
-                currentTimeElementParent.insertBefore(
-                  displayElement,
-                  currentTimeElement.nextSibling
-                );
+                const existingDisplay =
+                  currentTimeElementParent.querySelector(".time-display");
+                if (existingDisplay) {
+                  existingDisplay.textContent = `Time: ${timeDifference}`;
+                } else {
+                  const displayElement = document.createElement("div");
+                  displayElement.classList.add("time-display");
+                  displayElement.textContent = `Time: ${timeDifference}`;
+                  displayElement.style.padding = "10px";
+                  const themeMode = localStorage.getItem("ThemeMode");
+                  displayElement.style.backgroundColor =
+                    themeMode === "light" ? "#f5f5f5" : "#263042";
+                  currentTimeElementParent.insertBefore(
+                    displayElement,
+                    currentTimeElement.nextSibling
+                  );
+                }
               }
             },
             args: [timeDifference],
           });
         } else {
-          // console.error("Could not extract times");
-          const messageElement = document.querySelector(".message");
-          messageElement.textContent = "Please First Load the PunchIn Time";
+          console.log("Keka Time Extention: No times found");
         }
       }
     );
   }
 });
 
-// Function to extract times from the page
 function extractTimes() {
   const currentTimeElement = document.querySelector(
     ".d-flex .pie-percent + div span"
@@ -116,13 +116,25 @@ function extractTimes() {
     ? currentTimeElement.textContent.trim()
     : null;
 
-  const parentElement = document.querySelector(".d-flex.mt-10:last-child");
-  const lastTimeElement = parentElement
-    ? parentElement.querySelector(".ki-arrow-forward.ki-green + span")
-    : null;
-  const lastTime = lastTimeElement ? lastTimeElement.textContent.trim() : null;
+  if (currentTimeElement) {
+    currentTimeElement.click();
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const parentElement = document.querySelector(
+          ".d-flex.mt-10:last-child"
+        );
+        const lastTimeElement = parentElement
+          ? parentElement.querySelector(".ki-arrow-forward.ki-green + span")
+          : null;
+        const lastTime = lastTimeElement
+          ? lastTimeElement.textContent.trim()
+          : null;
 
-  console.log("Extracted Times:", { currentTime, lastTime });
+        // console.log("Extracted Times:", { currentTime, lastTime });
+        resolve({ currentTime, lastTime });
+      }, 500);
+    });
+  }
 
-  return { currentTime, lastTime };
+  return { currentTime, lastTime: null };
 }
