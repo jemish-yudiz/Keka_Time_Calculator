@@ -68,6 +68,9 @@ chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         }
 
         if (currentTime && lastTime) {
+          const messageElement = document.querySelector('.message');
+          messageElement.textContent = 'Your Time Shown Next To Effective Hour';
+
           const timeDifference = calculateTimeDifference(currentTime, lastTime);
 
           chrome.scripting.executeScript({
@@ -101,9 +104,6 @@ chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
             },
             args: [timeDifference],
           });
-
-          const messageElement = document.querySelector('.message');
-          messageElement.textContent = 'Your Time Shown Next To Effective Hour';
         } else {
           console.log('Keka Time Extention: No times found');
         }
@@ -118,6 +118,7 @@ function extractTimes() {
 
   if (currentTimeElement) {
     currentTimeElement.click();
+
     return new Promise(resolve => {
       setTimeout(() => {
         const missingPunchElement = document.querySelector('.d-flex.mt-10:last-child .d-flex.align-items-center.ml-8 span:nth-child(2)');
@@ -137,7 +138,7 @@ function extractTimes() {
 
         // console.log("Extracted Times:", { currentTime, lastTime });
         resolve({ currentTime, lastTime });
-      }, 300);
+      }, 200);
     });
   }
 
