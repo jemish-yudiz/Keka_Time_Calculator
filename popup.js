@@ -45,6 +45,13 @@ chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
   const tab = tabs[0];
 
   if (tab) {
+    if (!tab.url.includes('keka.com')) {
+      const messageElement = document.querySelector('.message');
+      messageElement.textContent = 'This extension only works on keka.com';
+      messageElement.style.color = '#ff584d';
+      return;
+    }
+
     chrome.scripting.executeScript(
       {
         target: { tabId: tab.id },
@@ -90,14 +97,18 @@ chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
 
                 if (existingDisplay) {
                   existingDisplay.textContent = `Time: ${timeDifference}`;
-                  const getDisplayElement = document.querySelector('.time-display');
-                  getDisplayElement.style.backgroundColor = themeMode === 'light' ? '#f5f5f5' : '#263042';
                 } else {
                   const displayElement = document.createElement('div');
                   displayElement.classList.add('time-display');
                   displayElement.textContent = `Time: ${timeDifference}`;
                   displayElement.style.padding = '10px';
-                  displayElement.style.backgroundColor = themeMode === 'light' ? '#f5f5f5' : '#263042';
+                  if (themeMode === 'light') {
+                    displayElement.style.backgroundColor = 'transparent';
+                    displayElement.style.color = '#0f1828';
+                  } else {
+                    displayElement.style.backgroundColor = 'transparent';
+                    displayElement.style.color = '#cfcfcf';
+                  }
                   currentTimeElementParent.insertBefore(displayElement, currentTimeElement.nextSibling);
                 }
               }
@@ -127,7 +138,7 @@ function extractTimes() {
           resolve({
             currentTime,
             lastTime: null,
-            error: 'Please Wait for PunchIn Time',
+            error: 'Waiting for first punch-in time...',
           });
           return;
         }
